@@ -10,6 +10,7 @@ using Content.Shared.Popups;
 using Content.Shared.Rejuvenate;
 using Content.Shared.Rounding;
 using Content.Shared.Stunnable;
+using Content.Shared.Throwing;
 using Content.Shared.Weapons.Melee.Events;
 using JetBrains.Annotations;
 using Robust.Shared.GameStates;
@@ -49,6 +50,7 @@ public sealed class StaminaSystem : EntitySystem
         SubscribeLocalEvent<StaminaComponent, DisarmedEvent>(OnDisarmed);
         SubscribeLocalEvent<StaminaComponent, RejuvenateEvent>(OnRejuvenate);
         SubscribeLocalEvent<StaminaDamageOnCollideComponent, StartCollideEvent>(OnCollide);
+        SubscribeLocalEvent<StaminaDamageOnCollideComponent, ThrowDoHitEvent>(OnThrow);
         SubscribeLocalEvent<StaminaDamageOnHitComponent, MeleeHitEvent>(OnHit);
     }
 
@@ -213,6 +215,11 @@ public sealed class StaminaSystem : EntitySystem
         if (!args.OurFixture.ID.Equals(CollideFixture)) return;
 
         TakeStaminaDamage(args.OtherEntity, component.Damage, source:args.OurEntity);
+    }
+
+    private void OnThrow(EntityUid uid, StaminaDamageOnCollideComponent component, ThrowDoHitEvent args)
+    {
+        TakeStaminaDamage(args.Target, component.Damage, source:args.Thrown);
     }
 
     private void SetStaminaAlert(EntityUid uid, StaminaComponent? component = null)
